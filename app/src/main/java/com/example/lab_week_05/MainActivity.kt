@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         val call = catApiService.searchImages(1, "full")
         call.enqueue(object : Callback<List<ImageData>> {
             override fun onFailure(call: Call<List<ImageData>>, t: Throwable) {
-                Log.e(MAIN_ACTIVITY, "Failed to get response", t)
+                Log.e("MAIN_ACTIVITY", "Failed to get response", t)
             }
 
             override fun onResponse(
@@ -58,27 +58,30 @@ class MainActivity : AppCompatActivity() {
             ) {
                 if (response.isSuccessful) {
                     val image = response.body()
-                    val firstImage = image?.firstOrNull()?.imageUrl.orEmpty()
+                    val firstItem = image?.firstOrNull()
 
-                    if (firstImage.isNotBlank()) {
-                        imageLoader.loadImage(firstImage, imageResultView)
+                    val breedName = firstItem?.breeds
+                        ?.firstOrNull()
+                        ?.name
+                        ?.takeIf { it.isNotBlank() }
+                        ?: "Unknown"
+
+                    apiResponseView.text = getString(R.string.breed_placeholder, breedName)
+
+                    val firstUrl = firstItem?.url
+                    if (!firstUrl.isNullOrBlank()) {
+                        imageLoader.loadImage(firstUrl, imageResultView)
                     } else {
-                        Log.d(MAIN_ACTIVITY, "Missing image URL")
+                        Log.d("MAIN_ACTIVITY", "Missing image URL")
                     }
-
-                    apiResponseView.text =
-                        getString(R.string.image_placeholder, firstImage)
                 } else {
                     Log.e(
-                        MAIN_ACTIVITY,
-                        "Failed to get response\n" + response.errorBody()?.string().orEmpty()
+                        "MAIN_ACTIVITY",
+                        "Failed to get response\n${response.errorBody()?.string().orEmpty()}"
                     )
+                    apiResponseView.text = getString(R.string.error_message, response.code())
                 }
             }
         })
-    }
-
-    companion object {
-        const val MAIN_ACTIVITY = "MAIN_ACTIVITY"
     }
 }
