@@ -3,4 +3,5 @@
     <string name="image_placeholder">Image URL: %s</string>
     <string name="error_message">Error: %1$d</string>
     <string name="failure_message">Failure: %1$s</string>
+    <string name="image_url_label">Image URL:</string>
 </resources>
